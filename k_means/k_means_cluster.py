@@ -48,6 +48,7 @@ data_dict.pop("TOTAL", 0)
 ### can be any key in the person-level dictionary (salary, director_fees, etc.) 
 feature_1 = "salary"
 feature_2 = "exercised_stock_options"
+feature_3 = "total_payments"
 poi  = "poi"
 features_list = [poi, feature_1, feature_2]
 data = featureFormat(data_dict, features_list )
@@ -56,14 +57,18 @@ poi, finance_features = targetFeatureSplit( data )
 
 ### in the "clustering with 3 features" part of the mini-project,
 ### you'll want to change this line to 
-### for f1, f2, _ in finance_features:
+#for f1, f2, _ in finance_features:
 ### (as it's currently written, the line below assumes 2 features)
 for f1, f2 in finance_features:
-    plt.scatter( f1, f2 )
+    plt.scatter( f1, f2)
 plt.show()
 
 ### cluster here; create predictions of the cluster labels
 ### for the data and store them to a list called pred
+from sklearn.cluster import KMeans
+clus=KMeans(n_clusters=2)
+clus=clus.fit(finance_features)
+pred=clus.predict(finance_features)
 
 
 
@@ -74,3 +79,78 @@ try:
     Draw(pred, finance_features, poi, mark_poi=False, name="clusters.pdf", f1_name=feature_1, f2_name=feature_2)
 except NameError:
     print "no predictions object named pred found, no clusters to plot"
+
+
+
+#Finding max and min values of exercised stock options
+ESO_max=0
+
+for enron in data_dict:
+    if(data_dict[enron]["exercised_stock_options"]!='NaN'):
+        if(ESO_max<data_dict[enron]["exercised_stock_options"]):
+	    ESO_max=data_dict[enron]["exercised_stock_options"]
+ESO_min=ESO_max
+for enron in data_dict:
+    if(data_dict[enron]["exercised_stock_options"]!='NaN'):
+        if(ESO_min>data_dict[enron]["exercised_stock_options"]):
+	    ESO_min=data_dict[enron]["exercised_stock_options"]
+
+print('max ESO = '+str(ESO_max))
+print('min ESO = '+str(ESO_min))
+
+#Finding max and min values of salary
+sal_max=0
+
+for enron in data_dict:
+    if(data_dict[enron]["salary"]!='NaN'):
+        if(sal_max<data_dict[enron]["salary"]):
+	    sal_max=data_dict[enron]["salary"]
+sal_min=sal_max
+for enron in data_dict:
+    if(data_dict[enron]["salary"]!='NaN'):
+        if(sal_min>data_dict[enron]["salary"]):
+	    sal_min=data_dict[enron]["salary"]
+
+print('max salary = '+str(sal_max))
+print('min salary = '+str(sal_min))
+
+
+#Feature scaling on salary and ESO
+from sklearn.preprocessing import MinMaxScaler
+scaler = MinMaxScaler()
+x_sal = 200000.
+x_ESO = 1000000.
+sal = []
+ESO = []
+
+for enron in data_dict:
+    if(data_dict[enron]["salary"]!='NaN'):
+    	sal.append(float (data_dict[enron]["salary"]))
+    if(data_dict[enron]["exercised_stock_options"]!='NaN'):
+    	ESO.append(float (data_dict[enron]["exercised_stock_options"]))
+'''
+#print sal
+#print ESO
+#data = [sal,ESO]
+#print data
+slry = numpy.array([sal])
+rescaled_sal = scaler.fit_transform(slry)
+print rescaled_sal
+'''
+
+x_min_sal = min(sal)
+x_max_sal = max(sal)
+x_min_ESO = min(ESO)
+x_max_ESO = max(ESO)
+
+#for i in range(len(sal)):
+x_prime_sal = (float ((x_sal-x_min_sal)/(x_max_sal-x_min_sal)))
+
+print x_prime_sal
+
+x_prime_ESO = (float ((x_ESO-x_min_ESO)/(x_max_ESO-x_min_ESO)))
+print x_prime_ESO
+
+
+
+
