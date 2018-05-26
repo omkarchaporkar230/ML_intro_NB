@@ -38,6 +38,45 @@ labels_train   = labels_train[:150]
 
 
 ### your code goes here
+from sklearn.tree import DecisionTreeClassifier
+clf = DecisionTreeClassifier()
+clf=clf.fit(features_train,labels_train)
+pred = clf.predict(features_test)
+from sklearn.metrics import accuracy_score
+accuracy = accuracy_score(pred,labels_test)
+print accuracy
+print len(features_train)
+imp =  clf.feature_importances_
+#print len(imp)
+#print max(imp)
+
+val=0
+val_new=0
+num=0
+count_02 = 0
+for i in range(len(imp)):
+    val_new = imp[i]
+    if val_new>val:
+	val=val_new
+	num=i
+    if(val_new>0.2):
+	count_02+=1
+
+print('max importance is '+str(val)+' and is	 given to number '+str(num))
+
+#finding most impactful word using get_feature_names() in tfidf vectorizer
+word_list=vectorizer.get_feature_names()
+print ('most impactful word is : '+str(word_list[num]))
+
+#Total number of words having power greater that 0.2
+print count_02
+
+
+#Now finding the accuracy after removing 2 signature words
+accuracy = accuracy_score(pred,labels_test)
+print accuracy
+
+
 
 
 
